@@ -9,14 +9,10 @@ SHELL ["/bin/bash", "-c"]
 # Install dependencies
 RUN DEBIAN_FRONTEND=noninteractive apt update && apt install -y openjdk-8-jdk git unzip wget
 
-RUN useradd -ms /bin/bash admin
-
-RUN chown -R admin:admin $ANDROID_HOME
-USER admin
 
 # Gradle, API and Build Tools versions, update as neeeded
 ARG ANDROID_API_LEVEL=30
-ARG ANDROID_BUILD_TOOLS_LEVEL=29.0.3
+ARG ANDROID_BUILD_TOOLS_LEVEL=30.0.2
 
 # Install android build tools
 RUN wget 'https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip' -P /tmp \
