@@ -1,24 +1,35 @@
-# Install linux distro
-FROM ubuntu:18.04
-ENV TZ=Africa/Johannesburg
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+FROM openjdk:8
+
 WORKDIR project/
-SHELL ["/bin/bash", "-c"]
+
+# Install Build Essentials
+RUN apt-get update \
+    && apt-get install -y
+
+# Set Environment Variables
+ENV SDK_URL="https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip" \
+    ANDROID_HOME="/usr/local/android-sdk" \
+    ANDROID_VERSION=29 \
+    ANDROID_BUILD_TOOLS_VERSION=29.0.2
+
+RUN mkdir "$ANDROID_HOME" .android
+RUN useradd -ms /bin/bash admin
+
+RUN chown -R admin:admin $ANDROID_HOME
+USER admin
+
+# Download Android SDK
+RUN cd "$ANDROID_HOME" \
+    && curl -o sdk.zip $SDK_URL \
+    && unzip sdk.zip \
+    && rm sdk.zip \
+    && mkdir "$ANDROID_HOME/licenses" || true \
+    && echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license" \
+    && yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 
 
-# Install dependencies
-RUN DEBIAN_FRONTEND=noninteractive apt update && apt install -y openjdk-8-jdk git unzip wget
-
-
-# Gradle, API and Build Tools versions, update as neeeded
-ARG ANDROID_API_LEVEL=30
-ARG ANDROID_BUILD_TOOLS_LEVEL=30.0.2
-
-# Install android build tools
-RUN wget 'https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip' -P /tmp \
-&& unzip -d /opt/android /tmp/sdk-tools-linux-4333796.zip \
-&& yes Y | /opt/android/tools/bin/sdkmanager --install "platform-tools" "platforms;android-${ANDROID_API_LEVEL}" "build-tools;${ANDROID_BUILD_TOOLS_LEVEL}" \
-&& yes Y | /opt/android/tools/bin/sdkmanager --licenses
-
-ENV ANDROID_HOME=/opt/android
-ENV PATH "$PATH:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools"
+# Install Android Build Tool and Libraries
+RUN $ANDROID_HOME/tools/bin/sdkmanager --update
+RUN $ANDROID_HOME/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
+    "platforms;android-${ANDROID_VERSION}" \
+    "platform-tools"
