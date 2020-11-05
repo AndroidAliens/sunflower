@@ -7,7 +7,7 @@ pipeline {
         stage("Test") {
             steps {
                 echo 'Testing'
-//                sh './gradlew testProductionReleaseUnitTest'
+                sh './gradlew testProductionReleaseUnitTest'
             }
         }
         stage("Build") {
