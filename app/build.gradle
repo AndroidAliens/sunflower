@@ -21,6 +21,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'jacoco'
+apply plugin: 'org.sonarqube'
 
 
 android {
@@ -58,13 +59,7 @@ android {
             includeAndroidResources = true
         }
     }
-    flavorDimensions "version"
-    productFlavors {
-        production {
-            dimension "version"
 
-        }
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -125,6 +120,28 @@ dependencies {
     androidTestImplementation "com.google.truth:truth:$rootProject.truthVersion"
     androidTestImplementation "com.google.dagger:hilt-android-testing:$rootProject.hiltVersion"
     testImplementation "junit:junit:$rootProject.junitVersion"
+}
+
+def getUnsplashAccess() {
+    return project.findProperty("unsplash_access_key")
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectName", "sunflower"
+        property "sonar.projectKey", "sunflower"
+        property "sonar.tests", ["src/test/java"]
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.jacoco.reportPath", "**/jacoco/*.exec"
+        property "sonar.test.inclusions", "**/*Test*/**"
+        property "sonar.sourceEncoding", "UTF-8"
+        property "sonar.sources", "src/main/java"
+        property "sonar.exclusions", '**/*Test*/**,' +
+                '*.json,' +
+                '**/*test*/**,' +
+                '**/.gradle/**,' +
+                '**/R.class'
+    }
 }
 
 jacoco {
@@ -189,13 +206,9 @@ project.afterEvaluate {
                 reports {
                     xml.enabled = true
                     html.enabled = true
-                    csv.enabled = true
+                    csv.enabled = false
                 }
             }
         }
     }
-}
-
-def getUnsplashAccess() {
-    return project.findProperty("unsplash_access_key")
 }
