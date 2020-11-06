@@ -27,7 +27,7 @@ pipeline {
         stage("Quality Control") {
             steps {
                 sh './gradlew testReleaseUnitTestCoverage'
-                sh './gradlew sonarqube -Dsonar.host.url=http://localhost:9000/ -Dsonar.login=4e08455b7a388becdf978854b8bd5a36ca5fafdb'
+                sh './gradlew sonarqube -Dsonar.host.url=http://fb43bd0f7fd6.ngrok.io/ -Dsonar.login=4e08455b7a388becdf978854b8bd5a36ca5fafdb'
             }
         }
         stage("Deploy") {
