@@ -3,8 +3,7 @@ FROM openjdk:8
 WORKDIR project/
 
 # Install Build Essentials
-RUN apt-get update \
-    && apt-get install build-essential -y
+RUN apt-get update && apt-get install build-essential -y
 
 # Set Environment Variables
 ENV SDK_URL="https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip" \
@@ -32,3 +31,5 @@ RUN $ANDROID_HOME/tools/bin/sdkmanager --update
 RUN $ANDROID_HOME/tools/bin/sdkmanager "build-tools;30.0.2" \
     "platforms;android-${ANDROID_VERSION}" \
     "platform-tools"
+RUN $ANDROID_HOME/tools/bin/sdkmanager "build-tools;30.0.1" "platforms;android-30" "platform-tools"
+RUN $ANDROID_HOME/tools/bin/sdkmanager "build-tools;29.0.2" "platforms;android-29" "platform-tools"
