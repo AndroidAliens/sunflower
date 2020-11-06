@@ -23,8 +23,10 @@ apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'jacoco'
 apply plugin: 'org.sonarqube'
 
+def appVersion = "0.1.6"
 
 android {
+    flavorDimensions "default"
     compileSdkVersion rootProject.compileSdkVersion
     buildFeatures {
         dataBinding = true
@@ -35,7 +37,7 @@ android {
         targetSdkVersion rootProject.targetSdkVersion
         testInstrumentationRunner "com.google.samples.apps.sunflower.utilities.MainTestRunner"
         versionCode 1
-        versionName "0.1.6"
+        versionName appVersion
         vectorDrawables.useSupportLibrary true
 
         // Consult the README on instructions for setting up Unsplash API key
@@ -130,6 +132,8 @@ sonarqube {
     properties {
         property "sonar.projectName", "sunflower"
         property "sonar.projectKey", "sunflower"
+        property "snoar.projectVersion", "${appVersion}"
+        property "sonar.host.url", "http://localhost:9000"
         property "sonar.tests", ["src/test/java"]
         property "sonar.java.coveragePlugin", "jacoco"
         property "sonar.jacoco.reportPath", "**/jacoco/*.exec"
