@@ -12,13 +12,13 @@ pipeline {
                 echo "Build number: ${env.BUILD_NUMBER}"
 
                 echo 'Testing'
-                sh './gradlew testReleaseUnitTest'
+                sh './gradlew testDebugUnitTest'
             }
         }
         stage("Build") {
             steps {
                 echo 'Building apk'
-                sh './gradlew assembleRelease'
+                sh './gradlew assembleDebug'
 
                 echo "Successful build ${currentBuild.fullDisplayName}"
                 echo "Url:  ${currentBuild.absoluteUrl}"
@@ -26,7 +26,7 @@ pipeline {
         }
         stage("Quality Control") {
             steps {
-                sh './gradlew testReleaseUnitTestCoverage'
+                sh './gradlew testDebugUnitTestCoverage'
                 sh './gradlew sonarqube -Dsonar.host.url=http://fb43bd0f7fd6.ngrok.io/ -Dsonar.login=4e08455b7a388becdf978854b8bd5a36ca5fafdb'
             }
         }
