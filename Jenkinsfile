@@ -18,10 +18,10 @@ pipeline {
         stage("Build") {
             steps {
                 echo 'Building apk'
-                sh './gradlew assembleDebug'
+//                sh './gradlew assembleDebug'
 
-                echo "Successful build ${currentBuild.fullDisplayName}"
-                echo "Url:  ${currentBuild.absoluteUrl}"
+//                echo "Successful build ${currentBuild.fullDisplayName}"
+//                echo "Url:  ${currentBuild.absoluteUrl}"
             }
         }
         stage("Quality Control") {
