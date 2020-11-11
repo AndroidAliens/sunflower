@@ -25,6 +25,9 @@ pipeline {
                     }
                 }
             }
+
+            echo "Flavour is: ${env.BUILD_FLAVOUR}"
+            echo "Build type: ${env.BUILD_TYPE}"
         }
         stage("Test") {
             steps {
@@ -37,7 +40,7 @@ pipeline {
         stage("Build") {
             steps {
                 echo 'Building apk'
-                sh './gradlew clean assemble${env.BUILD_FLAVOUR}${env.BuildType}'
+                sh './gradlew clean assemble${BUILD_FLAVOUR}${BuildType}'
 
                 echo "Successful build ${currentBuild.fullDisplayName}"
                 echo "Url:  ${currentBuild.absoluteUrl}"
@@ -54,7 +57,7 @@ pipeline {
             environment {
                 location = "${env.WORKSPACE}/app/build/outputs/*.apk"
                 apkLocation = "${env.WORKSPACE}/app/build/outputs/apk/production/release/app-production-release-unsigned.apk"
-                newApk = "${env.WORKSPACE}/app/build/outputs/Sunflower-${env.BUILD_FLAVOUR}-${env.BUILD_NUMBER}.apk"
+                newApk = "${env.WORKSPACE}/app/build/outputs/Sunflower-${BUILD_FLAVOUR}-${BUILD_NUMBER}.apk"
             }
             steps {
                 echo 'Deploy apk'
