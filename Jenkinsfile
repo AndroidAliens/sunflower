@@ -12,13 +12,13 @@ pipeline {
                 echo "Build number: ${env.BUILD_NUMBER}"
 
                 echo 'Testing'
-                sh './gradlew testProductionReleaseUnitTest'
+//                sh './gradlew testProductionReleaseUnitTest'
             }
         }
         stage("Build") {
             steps {
                 echo 'Building apk'
-                sh './gradlew assembleProductionRelease'
+                sh './gradlew clean assembleProductionRelease'
 
                 echo "Successful build ${currentBuild.fullDisplayName}"
                 echo "Url:  ${currentBuild.absoluteUrl}"
@@ -34,6 +34,14 @@ pipeline {
         stage("Deploy") {
             steps {
                 echo 'Deploy apk'
+                def apkLocation = "${env.WORKSPACE}/app/build/outputs/app-production-release-unsigned.apk"
+
+                def newApk = "${env.WORKSPACE}/app/build/outputs/Sunflower-production-${env.BUILD_NUMBER}.apk"
+
+                if (fileExists(apkLocation)) {
+                    writeFile(file: newApk, encoding: "UTF-8", text: readFile(file: apkLocation, encoding: "UTF-8"))
+                    echo 'Successfully renamed file'
+                }
             }
         }
         stage("Post Actions") {
