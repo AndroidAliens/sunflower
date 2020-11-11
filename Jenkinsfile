@@ -1,3 +1,29 @@
+class Constants {
+    static final String MASTER_BRANCH = 'master'
+    static final String DEVELOP_BRANCH = 'main'
+    static final String STAGING_BRANCH = 'release-'
+
+    static final String FLAVOUR_DEVELOPMENT = 'Development'
+    static final String FLAVOUR_PRODUCTION = 'Production'
+    static final String FLAVOUR_STAGING = 'Staging'
+
+    static final String DEBUG_BUILD_TYPE = 'Debug'
+    static final String RELEASE_BUILD_TYPE = 'Release'
+}
+
+def getBuildFlavour() {
+    env.BUILD_TYPE = Constants.RELEASE_BUILD_TYPE
+    if (env.BRANCH_NAME == Constants.DEVELOP_BRANCH || env.CHANGE_TARGET == Constants.DEVELOP_BRANCH) { //main = develop
+        env.BUILD_FLAVOUR = Constants.FLAVOUR_DEVELOPMENT
+        env.BUILD_TYPE = Constants.DEBUG_BUILD_TYPE
+    } else if (env.BRANCH_NAME == Constants.MASTER_BRANCH || env.CHANGE_TARGET == Constants.MASTER_BRANCH) {
+        env.BUILD_FLAVOUR = Constants.FLAVOUR_PRODUCTION
+    } else {
+        //do staging type
+        env.BUILD_FLAVOUR = Constants.FLAVOUR_STAGING
+    }
+}
+
 pipeline {
     agent {dockerfile true}
     environment {
@@ -6,32 +32,19 @@ pipeline {
     stages {
         stage("Initialise") {
             steps {
+                getBuildFlavour()
+
                 echo "Branch to build is: ${env.BRANCH_NAME}"
                 echo "Change branch is: ${env.CHANGE_BRANCH}"
                 echo "Target branch is: ${env.CHANGE_TARGET}"
                 echo "Build number: ${env.BUILD_NUMBER}"
 
-                script {
-
-                    env.BUILD_TYPE = 'Release'
-                    if (env.BRANCH_NAME == 'main' || env.CHANGE_TARGET == 'main') { //main = develop
-                        env.BUILD_FLAVOUR = 'Development'
-                        env.BUILD_TYPE = 'Debug'
-                    } else if (env.BRANCH_NAME == 'master' || env.CHANGE_TARGET == 'master') {
-                        env.BUILD_FLAVOUR = 'Release'
-                    } else {
-                        //do staging type
-                        env.BUILD_FLAVOUR = 'Staging'
-                    }
-                }
                 echo "Flavour is: ${env.BUILD_FLAVOUR}"
                 echo "Build type: ${env.BUILD_TYPE}"
             }
         }
         stage("Test") {
             steps {
-
-
                 echo 'Testing'
 //                sh './gradlew testProductionReleaseUnitTest'
             }
