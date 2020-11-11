@@ -39,7 +39,7 @@ pipeline {
         stage("Build") {
             steps {
                 echo 'Building apk'
-                sh "./gradlew clean assemble${env.BUILD_FLAVOUR}${env.BuildType}"
+                sh "./gradlew clean assemble${BUILD_FLAVOUR}${BUILD_TYPE}"
 
                 echo "Successful build ${currentBuild.fullDisplayName}"
                 echo "Url:  ${currentBuild.absoluteUrl}"
