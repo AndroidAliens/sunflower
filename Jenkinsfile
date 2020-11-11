@@ -28,7 +28,7 @@ pipeline {
         }
         stage("Quality Control") {
             steps {
-                sh './gradlew testProductionReleaseUnitTestCoverage'
+//                sh './gradlew testProductionReleaseUnitTestCoverage'
             }
         }
         stage("Deploy") {
@@ -39,7 +39,6 @@ pipeline {
         stage("Post Actions") {
             steps {
                 echo 'Do after build things'
-
             }
         }
     }
