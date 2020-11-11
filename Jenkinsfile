@@ -32,11 +32,13 @@ pipeline {
 //            }
 //        }
         stage("Deploy") {
+            environment {
+                apkLocation = "${env.WORKSPACE}/app/build/outputs/app-production-release-unsigned.apk"
+
+                newApk = "${env.WORKSPACE}/app/build/outputs/Sunflower-production-${env.BUILD_NUMBER}.apk"
+            }
             steps {
                 echo 'Deploy apk'
-                def apkLocation = "${env.WORKSPACE}/app/build/outputs/app-production-release-unsigned.apk"
-
-                def newApk = "${env.WORKSPACE}/app/build/outputs/Sunflower-production-${env.BUILD_NUMBER}.apk"
 
                 if (fileExists(apkLocation)) {
                     writeFile(file: newApk, encoding: "UTF-8", text: readFile(file: apkLocation, encoding: "UTF-8"))
