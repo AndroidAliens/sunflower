@@ -22,6 +22,8 @@ pipeline {
 
                 echo "Successful build ${currentBuild.fullDisplayName}"
                 echo "Url:  ${currentBuild.absoluteUrl}"
+                echo "Workspace: ${env.WORKSPACE}"
+                echo "DIR: ${currentBuild.fullProjectName}"
             }
         }
         stage("Quality Control") {
@@ -37,6 +39,7 @@ pipeline {
         stage("Post Actions") {
             steps {
                 echo 'Do after build things'
+
             }
         }
     }

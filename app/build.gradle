@@ -43,9 +43,6 @@ android {
                 arguments["dagger.hilt.disableModulesHaveInstallInCheck"] = "true"
             }
         }
-
-        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 2
-        project.ext.set("archivesBaseName", "Sunflower-" + versionName + "-" + versionCode);
     }
     buildTypes {
         release {
