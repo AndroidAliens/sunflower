@@ -11,7 +11,7 @@ class Constants {
     static final String RELEASE_BUILD_TYPE = 'Release'
 }
 
-def getBuildFlavour() {
+def initialiseBuildEnv() {
     env.BUILD_TYPE = Constants.RELEASE_BUILD_TYPE
     if (env.BRANCH_NAME == Constants.DEVELOP_BRANCH || env.CHANGE_TARGET == Constants.DEVELOP_BRANCH) { //main = develop
         env.BUILD_FLAVOUR = Constants.FLAVOUR_DEVELOPMENT
@@ -32,7 +32,7 @@ pipeline {
     stages {
         stage("Initialise") {
             steps {
-                getBuildFlavour()
+                initialiseBuildEnv()
 
                 echo "Branch to build is: ${env.BRANCH_NAME}"
                 echo "Change branch is: ${env.CHANGE_BRANCH}"
@@ -67,17 +67,24 @@ pipeline {
 //        }
         stage("Deploy") {
             environment {
-                location = "${env.WORKSPACE}/app/build/outputs/*.apk"
                 apkLocation = "${env.WORKSPACE}/app/build/outputs/apk/production/release/app-production-release-unsigned.apk"
-                newApk = "${env.WORKSPACE}/app/build/outputs/Sunflower-${BUILD_FLAVOUR}-${BUILD_NUMBER}.apk"
+
             }
             steps {
                 echo 'Deploy apk'
-                echo location
                 echo apkLocation
                 echo newApk
 
                 script {
+                    apkName = "${appName}-${BUILD_TYPE}-${BUILD_NUMBER}.apk"
+                    if (env.BUILD_FLAVOUR == Constants.FLAVOUR_PRODUCTION) {
+                            apkName = "${appName}.apk"
+                    } else if (env.BUILD_FLAVOUR == Constants.FLAVOUR_STAGING) {
+                        apkName = "${appName}-Staging-${BUILD_NUMBER}.apk"
+                    }
+
+                    newApk = "${env.WORKSPACE}/app/build/outputs/${apkName}"
+
 
                     obj = "${env.WORKSPACE}/app/build/outputs/*.apk"
                     echo '----'
