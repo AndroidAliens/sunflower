@@ -26,11 +26,11 @@ pipeline {
                 echo "DIR: ${currentBuild.fullProjectName}"
             }
         }
-        stage("Quality Control") {
-            steps {
+//        stage("Quality Control") {
+//            steps {
 //                sh './gradlew testProductionReleaseUnitTestCoverage'
-            }
-        }
+//            }
+//        }
         stage("Deploy") {
             steps {
                 echo 'Deploy apk'
