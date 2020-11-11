@@ -40,10 +40,8 @@ pipeline {
             steps {
                 echo 'Deploy apk'
 
-                if (fileExists(apkLocation)) {
                     writeFile(file: newApk, encoding: "UTF-8", text: readFile(file: apkLocation, encoding: "UTF-8"))
                     echo 'Successfully renamed file'
-                }
             }
         }
         stage("Post Actions") {
