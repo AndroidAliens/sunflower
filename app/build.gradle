@@ -29,6 +29,7 @@ android {
         dataBinding = true
     }
     defaultConfig {
+        flavorDimensions "version"
         applicationId "com.google.samples.apps.sunflower"
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
@@ -57,11 +58,16 @@ android {
             includeAndroidResources = true
         }
     }
-    flavorDimensions "version"
+
     productFlavors {
         production {
-            dimension "version"
 
+        }
+        staging {
+
+        }
+        development {
+            
         }
     }
     compileOptions {

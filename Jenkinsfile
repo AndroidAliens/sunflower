@@ -1,15 +1,34 @@
 pipeline {
     agent {dockerfile true}
     environment {
-        appName = 'Android-Work-Manager'
+        appName = 'Sunflower'
     }
     stages {
-        stage("Test") {
+        stage("Initialise") {
             steps {
                 echo "Branch to build is: ${env.BRANCH_NAME}"
                 echo "Change branch is: ${env.CHANGE_BRANCH}"
                 echo "Target branch is: ${env.CHANGE_TARGET}"
                 echo "Build number: ${env.BUILD_NUMBER}"
+
+                script {
+
+                    env.BUILD_TYPE = 'Release'
+                    if (env.BRANCH_NAME == 'main' || env.CHANGE_TARGET == 'main') { //main = develop
+                        env.BUILD_FLAVOUR = 'Development'
+                        env.BUILD_TYPE = 'Debug'
+                    } else if (env.BRANCH_NAME == 'master' || env.CHANGE_TARGET == 'master') {
+                        env.BUILD_FLAVOUR = 'Release'
+                    } else {
+                        //do staging type
+                        env.BUILD_FLAVOUR = 'Staging'
+                    }
+                }
+            }
+        }
+        stage("Test") {
+            steps {
+
 
                 echo 'Testing'
 //                sh './gradlew testProductionReleaseUnitTest'
@@ -18,7 +37,7 @@ pipeline {
         stage("Build") {
             steps {
                 echo 'Building apk'
-                sh './gradlew clean assembleProductionRelease'
+                sh './gradlew clean assemble${env.BUILD_FLAVOUR}${env.BuildType}'
 
                 echo "Successful build ${currentBuild.fullDisplayName}"
                 echo "Url:  ${currentBuild.absoluteUrl}"
@@ -35,7 +54,7 @@ pipeline {
             environment {
                 location = "${env.WORKSPACE}/app/build/outputs/*.apk"
                 apkLocation = "${env.WORKSPACE}/app/build/outputs/apk/production/release/app-production-release-unsigned.apk"
-                newApk = "${env.WORKSPACE}/app/build/outputs/Sunflower-production-${env.BUILD_NUMBER}.apk"
+                newApk = "${env.WORKSPACE}/app/build/outputs/Sunflower-${env.BUILD_FLAVOUR}-${env.BUILD_NUMBER}.apk"
             }
             steps {
                 echo 'Deploy apk'
