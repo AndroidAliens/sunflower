@@ -33,14 +33,23 @@ pipeline {
 //        }
         stage("Deploy") {
             environment {
-                apkLocation = "${env.WORKSPACE}/app/build/outputs/app-production-release-unsigned.apk"
-
+                location = "${env.WORKSPACE}/app/build/outputs/*.apk"
+                apkLocation = "${env.WORKSPACE}/app/build/outputs/apk/production/release/app-production-release-unsigned.apk"
                 newApk = "${env.WORKSPACE}/app/build/outputs/Sunflower-production-${env.BUILD_NUMBER}.apk"
             }
             steps {
                 echo 'Deploy apk'
+                echo location
+                echo apkLocation
+                echo newApk
 
                 script {
+
+                    obj = "${env.WORKSPACE}/app/build/outputs/*.apk"
+                    echo '----'
+                    echo obj
+                    echo '----'
+
                     if (fileExists(apkLocation)) {
                         writeFile(file: newApk, encoding: "UTF-8", text: readFile(file: apkLocation, encoding: "UTF-8"))
                         echo 'Successfully renamed file'
