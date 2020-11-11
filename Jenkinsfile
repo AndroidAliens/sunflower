@@ -24,10 +24,9 @@ pipeline {
                         env.BUILD_FLAVOUR = 'Staging'
                     }
                 }
+                echo "Flavour is: ${env.BUILD_FLAVOUR}"
+                echo "Build type: ${env.BUILD_TYPE}"
             }
-
-            echo "Flavour is: ${env.BUILD_FLAVOUR}"
-            echo "Build type: ${env.BUILD_TYPE}"
         }
         stage("Test") {
             steps {
