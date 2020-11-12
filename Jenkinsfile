@@ -24,6 +24,15 @@ def initialiseBuildEnv() {
     }
 }
 
+def getApkFileName() {
+    env.FILE_NAME = "${appName}-${BUILD_TYPE}-${BUILD_NUMBER}.apk"
+    if (env.BUILD_FLAVOUR == Constants.FLAVOUR_PRODUCTION) {
+        env.FILE_NAME = "${appName}.apk"
+    } else if (env.BUILD_FLAVOUR == Constants.FLAVOUR_STAGING) {
+        env.FILE_NAME = "${appName}-Staging-${BUILD_NUMBER}.apk"
+    }
+}
+
 pipeline {
     agent {dockerfile true}
     environment {
@@ -68,7 +77,7 @@ pipeline {
         stage("Deploy") {
             environment {
                 apkLocation = "${env.WORKSPACE}/app/build/outputs/apk/production/release/app-production-release-unsigned.apk"
-
+                newApk = "${env.WORKSPACE}/app/build/outputs/${env.FILE_NAME}"
             }
             steps {
                 echo 'Deploy apk'
@@ -76,21 +85,6 @@ pipeline {
                 echo newApk
 
                 script {
-                    apkName = "${appName}-${BUILD_TYPE}-${BUILD_NUMBER}.apk"
-                    if (env.BUILD_FLAVOUR == Constants.FLAVOUR_PRODUCTION) {
-                            apkName = "${appName}.apk"
-                    } else if (env.BUILD_FLAVOUR == Constants.FLAVOUR_STAGING) {
-                        apkName = "${appName}-Staging-${BUILD_NUMBER}.apk"
-                    }
-
-                    newApk = "${env.WORKSPACE}/app/build/outputs/${apkName}"
-
-
-                    obj = "${env.WORKSPACE}/app/build/outputs/*.apk"
-                    echo '----'
-                    echo obj
-                    echo '----'
-
                     if (fileExists(apkLocation)) {
                         writeFile(file: newApk, encoding: "UTF-8", text: readFile(file: apkLocation, encoding: "UTF-8"))
                         echo 'Successfully renamed file'
