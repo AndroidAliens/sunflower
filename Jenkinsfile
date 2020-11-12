@@ -42,6 +42,7 @@ pipeline {
         stage("Initialise") {
             steps {
                 initialiseBuildEnv()
+                getApkFileName()
 
                 echo "Branch to build is: ${env.BRANCH_NAME}"
                 echo "Change branch is: ${env.CHANGE_BRANCH}"
