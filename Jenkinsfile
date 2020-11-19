@@ -127,24 +127,24 @@ pipeline {
 //                }
             }
         }
+    }
 
-        post {
-            always {
-                echo "Send out comms to Slack"
+    post {
+        always {
+            echo "Send out comms to Slack"
 
+        }
+        success {
+            if (env.CHANGE_ID) {
+                pullRequest.comment('Built succsessfully by Jenkins')
+                pullRequest.addLabel('CI reviewed')
             }
-            success {
-                if (env.CHANGE_ID) {
-                    pullRequest.comment('Built succsessfully by Jenkins')
-                    pullRequest.addLabel('CI reviewed')
-                }
-            }
+        }
 
-            failure {
-                if (env.CHANGE_ID) {
-                    pullRequest.comment('Built failure by Jenkins')
-                    pullRequest.addLabel('CI reviewed')
-                }
+        failure {
+            if (env.CHANGE_ID) {
+                pullRequest.comment('Built failure by Jenkins')
+                pullRequest.addLabel('CI reviewed')
             }
         }
     }
