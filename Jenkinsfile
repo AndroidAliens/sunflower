@@ -111,6 +111,10 @@ pipeline {
             steps {
                 echo 'Post-actions'
                 echo 'new step'
+                echo 'fail build'
+                script {
+
+                }
 
 
 //                script {
