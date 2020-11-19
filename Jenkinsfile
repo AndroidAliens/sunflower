@@ -113,7 +113,7 @@ pipeline {
                 echo 'new step'
 
 
-                script {
+//                script {
 //                    //Get TestCoverage summary for posting
 //                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/build/reports/jacoco/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
 //                    def parser = new XmlParser()
@@ -124,7 +124,7 @@ pipeline {
 //                            {
 //                                println it
 //                            }
-                }
+//                }
             }
         }
 
