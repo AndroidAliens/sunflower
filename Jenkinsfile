@@ -135,16 +135,21 @@ pipeline {
 
         }
         success {
-            if (env.CHANGE_ID) {
-                pullRequest.comment('Built succsessfully by Jenkins')
-                pullRequest.addLabel('CI reviewed')
+
+            script {
+                if (env.CHANGE_ID) {
+                    pullRequest.comment('Built succsessfully by Jenkins')
+                    pullRequest.addLabel('CI reviewed')
+                }
             }
         }
 
         failure {
-            if (env.CHANGE_ID) {
-                pullRequest.comment('Built failure by Jenkins')
-                pullRequest.addLabel('CI reviewed')
+            script {
+                if (env.CHANGE_ID) {
+                    pullRequest.comment('Built failure by Jenkins')
+                    pullRequest.addLabel('CI reviewed')
+                }
             }
         }
     }
