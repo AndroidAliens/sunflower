@@ -110,8 +110,15 @@ pipeline {
         stage("post-actions") {
             steps {
                 echo 'Post-actions'
+                echo 'new step'
 
-//                script {
+
+                script {
+                    if (env.CHANGE_ID) {
+                        pullRequest.comment('This is a comment from Jenkins')
+                        pullRequest.addLabel('CI approved')
+                    }
+
 //
 //                    //Get TestCoverage summary for posting
 //                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/build/reports/jacoco/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
@@ -123,8 +130,7 @@ pipeline {
 //                            {
 //                                println it
 //                            }
-//                }
-
+                }
             }
         }
     }
