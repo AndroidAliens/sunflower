@@ -40,7 +40,6 @@ def getApkFileName(version) {
     }
 }
 
-
 pipeline {
     agent {dockerfile true}
     environment {
@@ -51,12 +50,10 @@ pipeline {
         stage("Initialise") {
             steps {
                 initialiseBuildEnv()
-
                 echo "Branch to build is: ${env.BRANCH_NAME}"
                 echo "Change branch is: ${env.CHANGE_BRANCH}"
                 echo "Target branch is: ${env.CHANGE_TARGET}"
                 echo "Build number: ${env.BUILD_NUMBER}"
-
                 echo "Flavour is: ${env.BUILD_FLAVOUR}"
                 echo "Build type: ${env.BUILD_TYPE}"
             }
@@ -64,14 +61,13 @@ pipeline {
         stage("Test") {
             steps {
                 echo 'Testing'
-                sh './gradlew testProductionReleaseUnitTest'
+                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTest"
 //                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage"
             }
         }
         stage("Build") {
             steps {
 //                echo 'Building apk'
-
                 echo "Successful build ${currentBuild.fullDisplayName}"
                 echo "Url:  ${currentBuild.absoluteUrl}"
                 echo "Workspace: ${env.WORKSPACE}"
