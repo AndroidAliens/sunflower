@@ -57,13 +57,12 @@ pipeline {
                 echo "Flavour is: ${env.BUILD_FLAVOUR}"
                 echo "Build type: ${env.BUILD_TYPE}"
 
-                script {
-                    for (requestedReviewer in pullRequest.requestedReviewers) {
-                        echo "${requestedReviewer} was requested to review this Pull Request"
-                    }
 
-                    for (requestedTeamReviewer in pullRequest.requestedTeamReviewers) {
-                        echo "${requestedTeamReviewer} was requested to review this Pull Request"
+                script {
+                    if (env.CHANGE_ID) {
+                        println "Adding 'clivewatts', 'campbellTakealot' as reviewers"
+                        pullRequest.createReviewRequests(['clivewatts', 'campbellTakealot'])
+                        println "Successfully added"
                     }
                 }
             }
@@ -117,7 +116,6 @@ pipeline {
             steps {
                 echo 'Post-actions'
                 echo 'new step'
-                echo 'fail build'
 //                script {
 //                    //Get TestCoverage summary for posting
 //                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/build/reports/jacoco/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
