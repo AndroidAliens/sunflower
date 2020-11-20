@@ -64,7 +64,7 @@ pipeline {
         stage("Test") {
             steps {
                 echo 'Testing'
-//                sh './gradlew testProductionReleaseUnitTest'
+                sh './gradlew testProductionReleaseUnitTest'
 //                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage"
             }
         }
@@ -112,11 +112,6 @@ pipeline {
                 echo 'Post-actions'
                 echo 'new step'
                 echo 'fail build'
-                script {
-
-                }
-
-
 //                script {
 //                    //Get TestCoverage summary for posting
 //                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/build/reports/jacoco/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
