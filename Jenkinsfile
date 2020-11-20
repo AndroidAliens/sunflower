@@ -65,9 +65,6 @@ pipeline {
                     for (requestedTeamReviewer in pullRequest.requestedTeamReviewers) {
                         echo "${requestedTeamReviewer} was requested to review this Pull Request"
                     }
-
-                    pullRequest.deleteReviewRequests(['McCoy'])
-
                 }
             }
         }
