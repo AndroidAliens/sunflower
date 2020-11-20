@@ -60,8 +60,12 @@ pipeline {
 
                 script {
                     if (env.CHANGE_ID) {
-                        println "Adding 'clivewatts', 'campbellTakealot' as reviewers"
-                        pullRequest.createReviewRequests(['clivewatts', 'campbellTakealot'])
+//                        println "Adding 'clivewatts', 'campbellTakealot' as reviewers"
+//                        pullRequest.createReviewRequests(['clivewatts', 'campbellTakealot'])
+//                        println "Successfully added"
+
+                        println "Adding 'Droids' as reviewers"
+                        pullRequest.createTeamReviewRequests(['droids'])
                         println "Successfully added"
                     }
                 }
