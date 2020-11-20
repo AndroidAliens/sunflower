@@ -56,12 +56,25 @@ pipeline {
                 echo "Build number: ${env.BUILD_NUMBER}"
                 echo "Flavour is: ${env.BUILD_FLAVOUR}"
                 echo "Build type: ${env.BUILD_TYPE}"
+
+                script {
+                    for (requestedReviewer in pullRequest.requestedReviewers) {
+                        echo "${requestedReviewer} was requested to review this Pull Request"
+                    }
+
+                    for (requestedTeamReviewer in pullRequest.requestedTeamReviewers) {
+                        echo "${requestedTeamReviewer} was requested to review this Pull Request"
+                    }
+
+                    pullRequest.deleteReviewRequests(['McCoy'])
+
+                }
             }
         }
         stage("Test") {
             steps {
                 echo 'Testing'
-                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTest"
+//                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTest"
 //                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage"
             }
         }
