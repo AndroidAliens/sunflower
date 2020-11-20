@@ -40,7 +40,6 @@ def getApkFileName(version) {
     }
 }
 
-
 pipeline {
     agent {dockerfile true}
     environment {
@@ -51,27 +50,45 @@ pipeline {
         stage("Initialise") {
             steps {
                 initialiseBuildEnv()
-
                 echo "Branch to build is: ${env.BRANCH_NAME}"
                 echo "Change branch is: ${env.CHANGE_BRANCH}"
                 echo "Target branch is: ${env.CHANGE_TARGET}"
                 echo "Build number: ${env.BUILD_NUMBER}"
-
                 echo "Flavour is: ${env.BUILD_FLAVOUR}"
                 echo "Build type: ${env.BUILD_TYPE}"
+
+
+                script {
+                    if (env.CHANGE_ID) {
+                        //Remove all labels
+                        pullRequest.getLabels().each
+                                {
+                                    pullRequest.removeLabel(it)
+                                    println "$it removed"
+                                }
+
+                        //Team needs to exist and be added as team member
+                        // Con- restricted to 3 reviewers, considering adding individually
+                        println "Adding 'Droids' as reviewers"
+                        pullRequest.createTeamReviewRequests(['aa_droids'])
+//                        pullRequest.createReviewRequests(['clivewatts', 'campbellTakealot'])
+                        println "Successfully added"
+
+
+                    }
+                }
             }
         }
         stage("Test") {
             steps {
                 echo 'Testing'
-//                sh './gradlew testProductionReleaseUnitTest'
+//                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTest"
 //                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage"
             }
         }
         stage("Build") {
             steps {
 //                echo 'Building apk'
-
                 echo "Successful build ${currentBuild.fullDisplayName}"
                 echo "Url:  ${currentBuild.absoluteUrl}"
                 echo "Workspace: ${env.WORKSPACE}"
@@ -111,8 +128,6 @@ pipeline {
             steps {
                 echo 'Post-actions'
                 echo 'new step'
-
-
 //                script {
 //                    //Get TestCoverage summary for posting
 //                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/build/reports/jacoco/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
@@ -126,20 +141,22 @@ pipeline {
 //                            }
 //                }
             }
+
+            //Consider merging branch when doing merge to master
         }
     }
 
     post {
         always {
             echo "Send out comms to Slack"
-
+            echo "Send out github comments and status"
         }
-        success {
 
+        success {
             script {
                 if (env.CHANGE_ID) {
-                    pullRequest.comment('Built succsessfully by Jenkins')
-                    pullRequest.addLabel('CI reviewed')
+                    pullRequest.comment('Built successfully by Jenkins')
+                    pullRequest.addLabel('Passed')
                 }
             }
         }
@@ -147,8 +164,8 @@ pipeline {
         failure {
             script {
                 if (env.CHANGE_ID) {
-                    pullRequest.comment('Built failure by Jenkins')
-                    pullRequest.addLabel('CI reviewed')
+                    pullRequest.comment('Build failure by Jenkins')
+                    pullRequest.addLabel('Failed')
                 }
             }
         }
