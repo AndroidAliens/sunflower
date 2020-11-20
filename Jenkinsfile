@@ -60,13 +60,21 @@ pipeline {
 
                 script {
                     if (env.CHANGE_ID) {
-//                        println "Adding 'clivewatts', 'campbellTakealot' as reviewers"
-//                        pullRequest.createReviewRequests(['clivewatts', 'campbellTakealot'])
-//                        println "Successfully added"
+                        //Remove all labels
+                        pullRequest.getLabels().each
+                                {
+                                    pullRequest.removeLabel(it)
+                                    println "$it removed"
+                                }
 
+                        //Team needs to exist and be added as team member
+                        // Con- restricted to 3 reviewers, considering adding individually
                         println "Adding 'Droids' as reviewers"
-                        pullRequest.createTeamReviewRequests(['droids'])
+                        pullRequest.createTeamReviewRequests(['aa_droids'])
+//                        pullRequest.createReviewRequests(['clivewatts', 'campbellTakealot'])
                         println "Successfully added"
+
+
                     }
                 }
             }
@@ -133,6 +141,8 @@ pipeline {
 //                            }
 //                }
             }
+
+            //Consider merging branch when doing merge to master
         }
     }
 
@@ -145,7 +155,7 @@ pipeline {
         success {
             script {
                 if (env.CHANGE_ID) {
-                    pullRequest.comment('Built succsessfully by Jenkins')
+                    pullRequest.comment('Built successfully by Jenkins')
                     pullRequest.addLabel('Passed')
                 }
             }
