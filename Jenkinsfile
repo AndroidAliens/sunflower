@@ -111,6 +111,8 @@ pipeline {
 //                sh "./gradlew testDevelopmentDebugUnitTestCoverage"
                 script {
                     //Get TestCoverage summary for posting
+                    DecimalFormat decimalFormat = new DecimalFormat("#")
+
                     def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
                     def parser = new XmlParser()
                     parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
@@ -123,7 +125,7 @@ pipeline {
                                 def coveredInt = it['@covered'] as Integer
                                 if (missedInt > 0 && coveredInt > 0) {
                                     def percent = coveredInt / missedInt * 100
-                                    println "percentage is: $percent"
+                                    println "Summary Test coverage percentage is: ${percent.toDouble().round(2)}%"
                                 }
                             }
                 }
