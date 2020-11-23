@@ -108,17 +108,17 @@ pipeline {
             steps {
                 echo 'Post-actions'
                 echo 'new step'
-                sh "./gradlew testDevelopmentDebugUnitTestCoverage"
+//                sh "./gradlew testDevelopmentDebugUnitTestCoverage"
                 script {
                     //Get TestCoverage summary for posting
-                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/build/reports/jacoco/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
+                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
                     def parser = new XmlParser()
                     parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
                     parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
                     def report = parser.parseText(unitTestCoverageXML)
                     report['counter'].each
                             {
-                                println ${it.attributes}
+                                println it.'@type'
                             }
                 }
             }
