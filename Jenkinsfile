@@ -118,7 +118,13 @@ pipeline {
                     def report = parser.parseText(unitTestCoverageXML)
                     report['counter'].each
                             {
-                                println it.'@type'
+                                println "type: ${it['@type']} Missed: ${it['@missed']} Covered: ${it['@covered']}"
+                                def missedInt = it['@missed'] as Integer
+                                def coveredInt = it['@covered'] as Integer
+                                if (missedInt > 0 && coveredInt > 0) {
+                                    def percent = coveredInt / missedInt * 100
+                                    println "percentage is: $percent"
+                                }
                             }
                 }
             }
