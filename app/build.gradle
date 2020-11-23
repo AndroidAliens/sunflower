@@ -23,21 +23,19 @@ apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'jacoco'
 apply plugin: 'org.sonarqube'
 
-def appVersion = "0.1.6"
 
 android {
-    flavorDimensions "default"
     compileSdkVersion rootProject.compileSdkVersion
     buildFeatures {
         dataBinding = true
     }
     defaultConfig {
+        flavorDimensions "version"
         applicationId "com.google.samples.apps.sunflower"
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
         testInstrumentationRunner "com.google.samples.apps.sunflower.utilities.MainTestRunner"
-        versionCode 1
-        versionName appVersion
+        versionName "0.1.16"
         vectorDrawables.useSupportLibrary true
 
         // Consult the README on instructions for setting up Unsplash API key
@@ -55,6 +53,13 @@ android {
             testCoverageEnabled true
         }
     }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "../../sunflower.apk"
+        }
+    }
+
     testOptions {
         animationsDisabled true
         unitTests {
@@ -62,6 +67,17 @@ android {
         }
     }
 
+    productFlavors {
+        production {
+
+        }
+        staging {
+
+        }
+        development {
+            
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
