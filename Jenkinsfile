@@ -41,7 +41,7 @@ def getApkFileName(version) {
 }
 
 pipeline {
-    agent {dockerfile true}
+    agent { dockerfile true }
     environment {
         appName = 'Sunflower'
         FILE_NAME = "1.10"
@@ -54,31 +54,9 @@ pipeline {
                 echo "Change branch is: ${env.CHANGE_BRANCH}"
                 echo "Target branch is: ${env.CHANGE_TARGET}"
                 echo "Build number: ${env.BUILD_NUMBER}"
-                echo "Flavour is: ${env.BUILD_FLAVOUR}"
-                echo "Build type: ${env.BUILD_TYPE}"
-
-
-                script {
-                    if (env.CHANGE_ID) {
-                        //Remove all labels
-                        pullRequest.getLabels().each
-                                {
-                                    pullRequest.removeLabel(it)
-                                    println "$it removed"
-                                }
-
-                        //Team needs to exist and be added as team member
-                        // Con- restricted to 3 reviewers, considering adding individually
-                        println "Adding 'Droids' as reviewers"
-                        pullRequest.createTeamReviewRequests(['aa_droids'])
-//                        pullRequest.createReviewRequests(['clivewatts', 'campbellTakealot'])
-                        println "Successfully added"
-
-
-                    }
-                }
             }
         }
+
         stage("Test") {
             steps {
                 echo 'Testing'
@@ -86,6 +64,7 @@ pipeline {
 //                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage"
             }
         }
+
         stage("Build") {
             steps {
 //                echo 'Building apk'
@@ -124,51 +103,33 @@ pipeline {
 //                }
             }
         }
+
         stage("post-actions") {
             steps {
                 echo 'Post-actions'
                 echo 'new step'
-//                script {
-//                    //Get TestCoverage summary for posting
-//                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/build/reports/jacoco/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
-//                    def parser = new XmlParser()
-//                    parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
-//                    parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
-//                    def report = parser.parseText(unitTestCoverageXML)
-//                    report['counter'].each
-//                            {
-//                                println it
-//                            }
-//                }
+                sh "./gradlew testDevelopmentDebugUnitTestCoverage"
+                script {
+                    //Get TestCoverage summary for posting
+                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/build/reports/jacoco/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
+                    def parser = new XmlParser()
+                    parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+                    parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+                    def report = parser.parseText(unitTestCoverageXML)
+                    report['counter'].each
+                            {
+                                println ${it.attributes}
+                            }
+                }
             }
 
             //Consider merging branch when doing merge to master
         }
-    }
 
-    post {
-        always {
-            echo "Send out comms to Slack"
-            echo "Send out github comments and status"
-        }
-
-        success {
-            script {
-                if (env.CHANGE_ID) {
-                    pullRequest.comment('Built successfully by Jenkins')
-                    pullRequest.addLabel('Passed')
-                }
-            }
-        }
-
-        failure {
-            script {
-                if (env.CHANGE_ID) {
-                    pullRequest.comment('Build failure by Jenkins')
-                    pullRequest.addLabel('Failed')
-                }
+        stage("Post Actions") {
+            steps {
+                echo 'Do after build things'
             }
         }
     }
 }
-

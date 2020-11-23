@@ -20,10 +20,13 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
-//apply plugin: 'jacoco'
+apply plugin: 'jacoco'
+//apply plugin: 'org.sonarqube'
 
+def appVersion = "0.1.6"
 
 android {
+    flavorDimensions "default"
     compileSdkVersion rootProject.compileSdkVersion
     buildFeatures {
         dataBinding = true
@@ -34,9 +37,9 @@ android {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
         testInstrumentationRunner "com.google.samples.apps.sunflower.utilities.MainTestRunner"
-        versionName property('versionName')
+        versionCode 1
+        versionName appVersion
         vectorDrawables.useSupportLibrary true
-        versionCode = 1
 
         // Consult the README on instructions for setting up Unsplash API key
         buildConfigField("String", "UNSPLASH_ACCESS_KEY", "\"" + getUnsplashAccess() + "\"")
@@ -75,7 +78,7 @@ android {
 
         }
         development {
-            
+
         }
     }
     compileOptions {
@@ -140,74 +143,10 @@ dependencies {
     testImplementation "junit:junit:$rootProject.junitVersion"
 }
 
-//jacoco {
-//    toolVersion = '0.8.1' //Use latest version
-//}
+def getUnsplashAccess() {
+    return project.findProperty("unsplash_access_key")
+}
 
-//project.afterEvaluate {
-//    // Grab all build types and product flavors
-//    def buildTypes = android.buildTypes.collect { type -> type.name }
-//    def productFlavors = android.productFlavors.collect { flavor -> flavor.name }
-//
-//    // When no product flavors defined, use empty
-//    if (!productFlavors) productFlavors.add('')
-//
-//    productFlavors.each { productFlavorName ->
-//        buildTypes.each { buildTypeName ->
-//            def sourceName, sourcePath
-//            if (!productFlavorName) {
-//                sourceName = sourcePath = "${buildTypeName}"
-//            } else {
-//                sourceName = "${productFlavorName}${buildTypeName.capitalize()}"
-//                sourcePath = "${productFlavorName}/${buildTypeName}"
-//            }
-//            def testTaskName = "test${sourceName.capitalize()}UnitTest"
-//
-//            // Create coverage task of form 'testFlavorTypeCoverage' depending on 'testFlavorTypeUnitTest'
-//            task "${testTaskName}Coverage" (type:JacocoReport, dependsOn: "$testTaskName") {
-//                group = "Reporting"
-//                description = "Generate Jacoco coverage reports on the ${sourceName.capitalize()} build."
-//
-//                def excludes = [
-//                        '**/R.class',
-//                        '**/R$*.class',
-//                        '**/Manifest*.*',
-//                        'android/**/*.*',
-//                        '**/BuildConfig.*',
-//                        '**/*$ViewBinder*.*',
-//                        '**/*$ViewInjector*.*',
-//                        '**/Lambda$*.class',
-//                        '**/Lambda.class',
-//                        '**/*Lambda.class',
-//                        '**/*Lambda*.class'
-//                ]
-//
-//                getClassDirectories().from(fileTree(
-//                        dir: "${project.buildDir}/intermediates/classes/${sourcePath}",
-//                        excludes: excludes
-//                ) + fileTree(
-//                        dir: "${project.buildDir}/tmp/kotlin-classes/${sourceName}",
-//                        excludes: excludes
-//                ))
-//
-//                def coverageSourceDirs = [
-//                        "src/main/java",
-//                        "src/$productFlavorName/java",
-//                        "src/$buildTypeName/java"
-//                ]
-//                getAdditionalSourceDirs().from(files(coverageSourceDirs))
-//                getSourceDirectories().from(files(coverageSourceDirs))
-//                getExecutionData().from(files("${project.buildDir}/jacoco/${testTaskName}.exec"))
-//
-//                reports {
-//                    xml.enabled = true
-//                    html.enabled = true
-//                    csv.enabled = true
-//                }
-//            }
-//        }
-//    }
-//}
 
 tasks.whenTaskAdded { task ->
     if (task.name.startsWith("assemble")) {
@@ -229,6 +168,91 @@ tasks.whenTaskAdded { task ->
     }
 }
 
-def getUnsplashAccess() {
-    return project.findProperty("unsplash_access_key")
+//sonarqube {
+//    properties {
+//        property "sonar.projectName", "sunflower"
+//        property "sonar.projectKey", "sunflower"
+//        property "snoar.projectVersion", "${appVersion}"
+//        property "sonar.host.url", "http://localhost:9000"
+//        property "sonar.tests", ["src/test/java"]
+//        property "sonar.java.coveragePlugin", "jacoco"
+//        property "sonar.jacoco.reportPath", "**/jacoco/*.exec"
+//        property "sonar.test.inclusions", "**/*Test*/**"
+//        property "sonar.sourceEncoding", "UTF-8"
+//        property "sonar.sources", "src/main/java"
+//        property "sonar.exclusions", '**/*Test*/**,' +
+//                '*.json,' +
+//                '**/*test*/**,' +
+//                '**/.gradle/**,' +
+//                '**/R.class'
+//    }
+//}
+
+jacoco {
+    toolVersion = '0.8.1' //Use latest version
+}
+
+project.afterEvaluate {
+    // Grab all build types and product flavors
+    def buildTypes = android.buildTypes.collect { type -> type.name }
+    def productFlavors = android.productFlavors.collect { flavor -> flavor.name }
+
+    // When no product flavors defined, use empty
+    if (!productFlavors) productFlavors.add('')
+
+    productFlavors.each { productFlavorName ->
+        buildTypes.each { buildTypeName ->
+            def sourceName, sourcePath
+            if (!productFlavorName) {
+                sourceName = sourcePath = "${buildTypeName}"
+            } else {
+                sourceName = "${productFlavorName}${buildTypeName.capitalize()}"
+                sourcePath = "${productFlavorName}/${buildTypeName}"
+            }
+            def testTaskName = "test${sourceName.capitalize()}UnitTest"
+
+            // Create coverage task of form 'testFlavorTypeCoverage' depending on 'testFlavorTypeUnitTest'
+            task "${testTaskName}Coverage" (type:JacocoReport, dependsOn: "$testTaskName") {
+                group = "Reporting"
+                description = "Generate Jacoco coverage reports on the ${sourceName.capitalize()} build."
+
+                def excludes = [
+                        '**/R.class',
+                        '**/R$*.class',
+                        '**/Manifest*.*',
+                        'android/**/*.*',
+                        '**/BuildConfig.*',
+                        '**/*$ViewBinder*.*',
+                        '**/*$ViewInjector*.*',
+                        '**/Lambda$*.class',
+                        '**/Lambda.class',
+                        '**/*Lambda.class',
+                        '**/*Lambda*.class'
+                ]
+
+                getClassDirectories().from(fileTree(
+                        dir: "${project.buildDir}/intermediates/classes/${sourcePath}",
+                        excludes: excludes
+                ) + fileTree(
+                        dir: "${project.buildDir}/tmp/kotlin-classes/${sourceName}",
+                        excludes: excludes
+                ))
+
+                def coverageSourceDirs = [
+                        "src/main/java",
+                        "src/$productFlavorName/java",
+                        "src/$buildTypeName/java"
+                ]
+                getAdditionalSourceDirs().from(files(coverageSourceDirs))
+                getSourceDirectories().from(files(coverageSourceDirs))
+                getExecutionData().from(files("${project.buildDir}/jacoco/${testTaskName}.exec"))
+
+                reports {
+                    xml.enabled = true
+                    html.enabled = true
+                    csv.enabled = false
+                }
+            }
+        }
+    }
 }
