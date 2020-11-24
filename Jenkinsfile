@@ -145,32 +145,32 @@ pipeline {
 
             //Consider merging branch when doing merge to master
         }
+    }
 
-        post {
-            always {
-                echo "TODO Send out comms to Slack"
-                echo "Stage Finally - ${currentBuild.result}"
+    post {
+        always {
+            echo "TODO Send out comms to Slack"
+            echo "Stage Finally - ${currentBuild.result}"
 
-            }
+        }
 
-            success {
-                script {
-                    if (env.CHANGE_ID) {
-                        pullRequest.comment("Test Coverage was [${env.COVERAGE_PERCENTAGE}] \n\n" +
-                                "----- Coverage Report ---- \n " +
-                                env.COVERAGE_REPORT)
-                        pullRequest.removeLabel('CI is taking a peak')
-                        pullRequest.addLabel('Passed')
-                    }
+        success {
+            script {
+                if (env.CHANGE_ID) {
+                    pullRequest.comment("Test Coverage was [${env.COVERAGE_PERCENTAGE}] \n\n" +
+                            "----- Coverage Report ---- \n " +
+                            env.COVERAGE_REPORT)
+                    pullRequest.removeLabel('CI is taking a peak')
+                    pullRequest.addLabel('Passed')
                 }
             }
+        }
 
-            failure {
-                script {
-                    if (env.CHANGE_ID) {
-                        pullRequest.comment('Build failure')
-                        pullRequest.addLabel('Failed')
-                    }
+        failure {
+            script {
+                if (env.CHANGE_ID) {
+                    pullRequest.comment('Build failure')
+                    pullRequest.addLabel('Failed')
                 }
             }
         }
