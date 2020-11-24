@@ -54,12 +54,14 @@ pipeline {
                 echo "Change branch is: ${env.CHANGE_BRANCH}"
                 echo "Target branch is: ${env.CHANGE_TARGET}"
                 echo "Build number: ${env.BUILD_NUMBER}"
+                echo "Stage Initialise - ${currentBuild.result}"
             }
         }
 
         stage("Test") {
             steps {
                 echo 'Testing'
+                echo "Stage Testing - ${currentBuild.result}"
 //                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTest"
 //                sh "./gradlew test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage"
             }
@@ -72,6 +74,7 @@ pipeline {
                 echo "Url:  ${currentBuild.absoluteUrl}"
                 echo "Workspace: ${env.WORKSPACE}"
                 echo "DIR: ${currentBuild.fullProjectName}"
+                echo "Stage Build - ${currentBuild.result}"
 
 //                script {
 //                    def d = [versionName: 'unversioned', versionCode: '1']
@@ -108,33 +111,67 @@ pipeline {
             steps {
                 echo 'Post-actions'
                 echo 'new step'
+                echo "Stage Post-actions - ${currentBuild.result}"
+
 //                sh "./gradlew testDevelopmentDebugUnitTestCoverage"
                 script {
-                    //Get TestCoverage summary for posting
-                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
+//                    //Get TestCoverage summary for posting
+                    def unitTestCoverageXML = readFile "${env.WORKSPACE}/app/build/reports/jacoco/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage/test${env.BUILD_FLAVOUR}${env.BUILD_TYPE}UnitTestCoverage.xml"
                     def parser = new XmlParser()
                     parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
                     parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+
+                    def coverageReport = ""
+                    def coveragePercentage = ""
                     def report = parser.parseText(unitTestCoverageXML)
                     report['counter'].each
                             {
-                                println "type: ${it['@type']} Missed: ${it['@missed']} Covered: ${it['@covered']}"
-                                def missedInt = it['@missed'] as Integer
-                                def coveredInt = it['@covered'] as Integer
-                                if (missedInt > 0 && coveredInt > 0) {
-                                    def percent = coveredInt / missedInt * 100
-                                    println "Summary Test coverage percentage is: ${percent.toDouble().round(2)}%"
-                                }
+                                coverageReport += "${it['@type']} Missed: ${it['@missed']} Covered: ${it['@covered']} \n"
                             }
+
+                    double missedInt = report['counter'][0]['@missed']
+                    double coveredInt = report['counter'][0]['@covered']
+                    if (missedInt > 0 && coveredInt > 0) {
+                        double percent = coveredInt / missedInt * 100
+                        coveragePercentage = "Summary Test coverage percentage is: ${percent.round(1)}%"
+                    } else {
+                        coveragePercentage = "0%"
+                    }
+
+                    env.COVERAGE_REPORT = coverageReport
+                    env.COVERAGE_PERCENTAGE = coveragePercentage
                 }
             }
 
             //Consider merging branch when doing merge to master
         }
 
-        stage("Post Actions") {
-            steps {
-                echo 'Do after build things'
+        post {
+            always {
+                echo "TODO Send out comms to Slack"
+                echo "Stage Finally - ${currentBuild.result}"
+
+            }
+
+            success {
+                script {
+                    if (env.CHANGE_ID) {
+                        pullRequest.comment("Test Coverage was [${env.COVERAGE_PERCENTAGE}] \n\n" +
+                                "----- Coverage Report ---- \n " +
+                                env.COVERAGE_REPORT)
+                        pullRequest.removeLabel('CI is taking a peak')
+                        pullRequest.addLabel('Passed')
+                    }
+                }
+            }
+
+            failure {
+                script {
+                    if (env.CHANGE_ID) {
+                        pullRequest.comment('Build failure')
+                        pullRequest.addLabel('Failed')
+                    }
+                }
             }
         }
     }
