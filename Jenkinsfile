@@ -1,1 +1,1 @@
-BuildAndroidApp
+BuildAndroidApp()
